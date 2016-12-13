@@ -1,0 +1,108 @@
+.reduce(function(prev,curr,index,array){ return … }, initValue)
+
+someList.reduce(function(res, cur, index){
+	… some code
+		  return res;
+	  },{})
+
+prev - is initValue, if initValue is provided or is first element in array
+curr - current item in list (is second item when initValue is not provided upon first run)
+index(option)- index
+array(optional) - the original array
+initValue(optional) - initial object of res, could be anything(here it is an object)
+
+    function countWords(inputWords) {
+     return inputWords.reduce(function(res, cur, index){
+		res[cur] = ++res[cur] || 1
+		  return res;
+	  },{})
+    }
+
+
+++res[cur] is undefined hence right side of || is initialized
+
+IIFE - Immediately-Invoked Function Expression
+
+The first pair of parentheses (function(){...}) turns the code within (in this case, a function) into an expression, and the second pair of parentheses (function(){...})() calls the function that results from that evaluated expression.
+
+This pattern is often used when trying to avoid polluting the global namespace, because all the variables used inside the IIFE (like in any other normal function) are not visible outside its scope.
+
+From <http://stackoverflow.com/questions/8228281/what-is-the-function-construct-in-javascript>
+
+	    function reduce(arr, fn, initial) {
+			if(!arr.length) return [];
+        var counter = ++counter ||1;
+      var head = arr[0];
+	  var tail = arr.splice(1);
+	 return (tail,fn,fn(initial,head, counter,tail));
+
+
+
+    }
+
+Wrong?
+
+    module.exports = reduce
+
+	  function reduce(arr, fn, initial) {
+      return (
+
+	  function reduceOne(index, value) {
+        if (index > arr.length - 1) return value // end condition
+        return reduceOne(index + 1, fn(value, arr[index], index, arr)) // calculate & pass values to next step
+      }
+	  )(0, initial) // IIFE. kick off recursion with initial values
+    }
+
+newObject = Object.create(null)
+
+Object.create(proto)
+
+Proto is the prototype of object that is to be created. In above case it is null, hence new object
+Inherits not properties at all.
+
+.call() vs .apply()
+
+Both for fixing context within function (i.e what this refers to)
+
+Both accept first argument as what is to be refered to by this (rest of arguments are same as original function)
+
+Apply allows for unknown number of arguments, as it will take an array of arguments for second parameter
+
+Object.prototype.hasOwnProperty(obj, prop) vs obj.hasOwnProperty(prop)
+
+Use the former as some objects are created with Object.create(null), hence it doesn’t inherit function from prototype.
+
+Your error in functional-javascript call exercise:
+TypeError: curr.hasOwnProperty is not a function   //curr never inherited from Object.prototype
+
+
+    function logger(namespace) {
+      return function(){
+		  var a = [];
+		  a.push(namespace)
+		  var args = a.concat(Array.prototype.slice.call(arguments));
+		  return console.log.apply(console,args);
+    }
+	}
+
+	 module.exports = logger
+
+
+Their solution:
+
+    var slice = Array.prototype.slice
+
+    function logger(namespace) {
+      return function() {
+        console.log.apply(console, [namespace].concat(slice.call(arguments)))
+      }
+    }
+
+    module.exports = logger
+
+Solution : Partial Application with Bind
+
+    module.exports = function(namespace) {
+      return console.log.bind(console, namespace)
+    }
